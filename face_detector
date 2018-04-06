@@ -16,6 +16,9 @@ WIDTH = 128
 HEIGHT = 160
 SPEED_HZ = 4000000
 
+var1 = 0;
+var2 = '';
+
 
 # Raspberry Pi configuration.
 DC = 24
@@ -48,14 +51,12 @@ def getProfile(id):
     return profile;
 
 def display():
-    disp_img = numpy.ones((128,128,1),numpy.unit8)*0;
+    disp_img = np.ones((128,128,1),np.uint8)*0;
     font_ = cv2.FONT_HERSHEY_SIMPLEX;
-    cv2.putText(disp_img,'ID: '+str(profile[0]),(5,40),font_,1,(255,255,255),2,cv2.CV_AA);
-    cv2.putText(disp_img,str(profile[1]),(5,40),font_,1,(255,255,255),2,cv2.CV_AA);
+    cv2.putText(disp_img,str(var1),(5,40),font_,1,(255,255,255),2,cv2.CV_AA);
+    cv2.putText(disp_img,str(var2),(5,90),font_,1,(255,255,255),2,cv2.CV_AA);
     cv2.imshow('display image',disp_img);
     cv2.imwrite('temp.jpg',disp_img);
-    return temp.jpg
-    
 
 #video capture object to capture images for webcam value (video capture id) is 0 or else try 1
 cam = cv2.VideoCapture(0);
@@ -63,7 +64,7 @@ cam = cv2.VideoCapture(0);
 
 #creating recognizer
 recognizer = cv2.createLBPHFaceRecognizer();
-recognizer.load('recognizer\\trainingdata.yml');
+recognizer.load('/home/pi/projectBeat/face_recognition_sqlite/recognizer/trainingdata.yml');
 id = 0;
 font = cv2.cv.InitFont(cv2.cv.CV_FONT_HERSHEY_COMPLEX_SMALL,5,1,0,4);
 # parameters first one font size last on thickness
@@ -88,7 +89,9 @@ while(True):
         id,conf = recognizer.predict(gray[y:y+h,x:x+w])
         profile = getProfile(id);
         if(profile!=None):
-            cv2.cv.PutText(cv2.cv.fromarray(img),str(profile[1]),(x,y+h+60),font,255);
+            cv2.cv.PutText(cv2.cv.fromarray(img),str(profile[1]),(x,y+h+60),font,255)
+        var1=profile[0];
+        var2=profile[1];
         cv2.waitKey(1);
 
     #displaying the faces
@@ -103,7 +106,7 @@ while(True):
     disp_image = Image.open('temp.jpg')
 
     # Resize the image and rotate it so matches the display.
-    disp_image = image.rotate(90).resize((WIDTH, HEIGHT))
+    disp_image = disp_image.rotate(90).resize((WIDTH, HEIGHT))
 
     # Draw the image on the display hardware.
     print('Drawing image')
